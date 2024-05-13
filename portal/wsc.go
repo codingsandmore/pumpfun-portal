@@ -14,7 +14,7 @@ type MessageDecoder interface {
 type WebSocketClient interface {
 	Connect() error
 	Send(any)
-	Subscribe(messasge chan any, decoder MessageDecoder) error
+	Subscribe(messasge chan any, decoder MessageDecoder, welcomeMessage any) error
 }
 type DefaultWebSocketClient struct {
 	Addr             string
@@ -22,6 +22,7 @@ type DefaultWebSocketClient struct {
 	IncomingMessages chan any
 	OutgoingMessages chan any
 	Decoder          MessageDecoder
+	welcomeMessage   any
 }
 
 func NewDefaultClient(addr string) *DefaultWebSocketClient {
@@ -34,18 +35,26 @@ func NewDefaultClient(addr string) *DefaultWebSocketClient {
 	}
 }
 
-func (c *DefaultWebSocketClient) Subscribe(messages chan any, decoder MessageDecoder) error {
+func (c *DefaultWebSocketClient) Subscribe(messages chan any, decoder MessageDecoder, welcomeMessage any) error {
 	if decoder == nil {
 		log.Error().Msgf("you need to provide a decoder or this process will fail!")
 		return errors.New("please provide a decoder")
+	} else {
+		log.Info().Any("decoder", decoder).Msgf("subscribing to messages")
 	}
+	c.welcomeMessage = welcomeMessage
 	c.Decoder = decoder
 	c.Start()
+
 	for {
 		select {
 		case m := <-c.IncomingMessages:
-			log.Info().Msgf("message: %v", m)
-			messages <- m
+			if m != nil {
+				messages <- m
+			} else {
+				log.Warn().Msgf("ignoring Nil message!")
+			}
+
 		}
 	}
 }
@@ -61,12 +70,17 @@ func (c *DefaultWebSocketClient) Connect() error {
 		return err
 	}
 
+	if c.welcomeMessage != nil {
+		log.Info().Any("welcome", c.welcomeMessage).Msgf("sending welcome message")
+		c.Send(c.welcomeMessage)
+	}
 	return nil
 }
 
 func (c *DefaultWebSocketClient) maintainConnection() {
 	for {
 		if c.Conn == nil {
+			log.Info().Msgf("attempting to establish connection to %v", c.Addr)
 			if err := c.Connect(); err != nil {
 				log.Info().Msgf("Connect Error:", err)
 				time.Sleep(time.Second)
@@ -97,7 +111,9 @@ func (c *DefaultWebSocketClient) maintainConnection() {
 func (c *DefaultWebSocketClient) maintainOutgoingMessages() {
 	for msg := range c.OutgoingMessages {
 		if c.Conn == nil {
-			log.Error().Msgf("Connection Error: No active connection")
+			log.Error().Msgf("Connection Error: No active connection, Sending message back to queue")
+			time.Sleep(500 * time.Millisecond)
+			c.OutgoingMessages <- msg
 			continue
 		}
 
