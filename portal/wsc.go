@@ -1,6 +1,7 @@
 package portal
 
 import (
+	"errors"
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
 	"net/url"
@@ -13,7 +14,7 @@ type MessageDecoder interface {
 type WebSocketClient interface {
 	Connect() error
 	Send(any)
-	Subscribe(messasge chan any, decoder MessageDecoder)
+	Subscribe(messasge chan any, decoder MessageDecoder) error
 }
 type DefaultWebSocketClient struct {
 	Addr             string
@@ -33,7 +34,11 @@ func NewDefaultClient(addr string) *DefaultWebSocketClient {
 	}
 }
 
-func (c *DefaultWebSocketClient) Subscribe(messages chan any, decoder MessageDecoder) {
+func (c *DefaultWebSocketClient) Subscribe(messages chan any, decoder MessageDecoder) error {
+	if decoder == nil {
+		log.Error().Msgf("you need to provide a decoder or this process will fail!")
+		return errors.New("please provide a decoder")
+	}
 	c.Decoder = decoder
 	c.Start()
 	for {

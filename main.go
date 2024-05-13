@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/codingsandmore/pumpfun/portal"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
 	"os/signal"
-	"pumpfun/portal"
 	"syscall"
 	"time"
 )
@@ -25,7 +25,14 @@ func main() {
 
 	var decoder portal.MessageDecoder
 	pairs := make(chan any)
-	go func() { client.Subscribe(pairs, decoder) }()
+	go func() {
+
+		err := client.Subscribe(pairs, decoder)
+
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to subscribe to pairs")
+		}
+	}()
 
 	time.Sleep(5 * time.Second)
 	client.Send("{\"method\" : \"subscribeNewToken\"}")

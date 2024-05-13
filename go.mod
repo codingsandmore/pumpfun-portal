@@ -1,4 +1,4 @@
-module pumpfun
+module github.com/codingsandmore/pumpfun
 
 require (
 	github.com/gorilla/websocket v1.5.1
