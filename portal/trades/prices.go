@@ -1,18 +1,15 @@
-package prices
+package trades
 
 import (
 	"github.com/codingsandmore/pumpfun/portal"
 	"github.com/codingsandmore/pumpfun/portal/decoders"
 	"github.com/rs/zerolog/log"
-	"sync"
 )
 
 type TrackedTokenServer struct {
 	Tokens []string
 }
 type PriceTracker struct {
-	Keys   []string
-	lock   sync.Mutex
 	Client portal.WebSocketClient
 	trades chan any
 }
@@ -39,16 +36,9 @@ func NewPriceTracker() *PriceTracker {
 }
 
 func (t *PriceTracker) TrackPair(pair *portal.NewPairResponse) error {
-	log.Info().Str("pair", pair.Mint).Msgf("start tracking pair")
-	t.lock.Lock()
-	defer t.lock.Unlock()
-
-	t.Keys = append(t.Keys, pair.Mint)
-
-	log.Info().Int("keys", len(t.Keys)).Msgf("tracking pair count")
 	t.Client.Send(TrackRequest{
 		Method: "subscribeTokenTrade",
-		Keys:   t.Keys,
+		Keys:   []string{pair.Mint},
 	})
 	return nil
 }

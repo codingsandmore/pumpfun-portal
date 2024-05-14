@@ -15,6 +15,7 @@ type WebSocketClient interface {
 	Connect() error
 	Send(any)
 	Subscribe(messasge chan any, decoder MessageDecoder, welcomeMessage any) error
+	Shutdown()
 }
 type DefaultWebSocketClient struct {
 	Addr             string
@@ -25,6 +26,12 @@ type DefaultWebSocketClient struct {
 	welcomeMessage   any
 }
 
+func (c *DefaultWebSocketClient) Shutdown() {
+	defer c.Conn.Close()
+	defer close(c.OutgoingMessages)
+	defer close(c.IncomingMessages)
+
+}
 func NewDefaultClient(addr string) *DefaultWebSocketClient {
 
 	return &DefaultWebSocketClient{
