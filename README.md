@@ -19,16 +19,12 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {
 
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	//log.SetReportCaller(true)
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	//subscribe to web socket
 
 	discoverPair := func(p *portal.NewPairResponse) {
 		log.Info().Any("pair", p).Msgf("discovered pair")
@@ -38,11 +34,6 @@ func main() {
 	}
 
 	server.NewPortalServer().Discover(discoverPair, discoverTrade)
-	//shutdown on signal
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	sig := <-sigs
-	log.Info().Msgf("received signal: %s", sig)
 }
 
 ```
@@ -71,6 +62,9 @@ example out put
 9:13PM INF discovered pair pair={"bondingCurveKey":"9gZy7eAASMkgTBbP1TnBXP65ysb7CYLyBQznapc886Rn","initialBuy":47840764.33121,"marketCapSol":30.629388008698342,"mint":"Bo51ZyNkhMtQboXq8aUqVPkPeewmCRWR4pF9iq34QSVq","signature":"58de9dg7nQs4cFvRs9cmdDb6i4eR8xtneZNpBRniVufEMEL8iccHeV5aaBdVspr4fB6woRR2Y3z57QU146auoLoY","traderPublicKey":"DniHsMTe5q7SWm6R26bRg6vfrqGvodAxif7JsbmMfyWJ","txType":"create","vSolInBondingCurve":31.399999999999995,"vTokensInBondingCurve":1025159235.66879}
 
 ```
+
+Obviously you can work of this example to push the data to a database, a bot or do some magic with it
+
 ### Need coffee!!!
 
 we would love to receive your support and would appreciate it, if you send us some SOL for coffee, if you consider this useful :)
@@ -78,3 +72,7 @@ we would love to receive your support and would appreciate it, if you send us so
 ```
 D79Tjjs6GpsUL2Pxd7PNsWuBaRJs5Qdt1XNorXRD5Azd
 ```
+
+### Collaboration
+
+Feel free to reach out to me, I'm always interested in some fun collaborations.
