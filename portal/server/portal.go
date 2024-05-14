@@ -21,6 +21,11 @@ func NewPortalServer() *PortalServer {
 	return &PortalServer{}
 }
 
+// Discover is a method of the PortalServer type that allows for the discovery of new pairs and trades.
+// It takes two parameters: pairDiscovery of type NewPairDiscovered and tradeDiscovery of type NewTradeDiscovered.
+// It creates a new pair client, initializes the pairs and trackedTrades channels, and creates a new trade tracker.
+// It starts two goroutines: one to subscribe to pairs and one to track trades.
+// The method then enters a loop to handle incoming trade information.
 func (s *PortalServer) Discover(pairDiscovery NewPairDiscovered, tradeDiscovery NewTradeDiscovered) {
 	client := portal.NewPairClient()
 	defer client.Shutdown()

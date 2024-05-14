@@ -66,7 +66,7 @@ func (c *DefaultWebSocketClient) Subscribe(messages chan any, decoder MessageDec
 	}
 }
 func (c *DefaultWebSocketClient) Connect() error {
-	log.Info().Str("url", c.Addr).Msgf("connecting to %v", c.Addr)
+	log.Debug().Str("url", c.Addr).Msgf("connecting to %v", c.Addr)
 	u, err := url.Parse(c.Addr)
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func (c *DefaultWebSocketClient) Connect() error {
 	}
 
 	if c.welcomeMessage != nil {
-		log.Info().Any("welcome", c.welcomeMessage).Msgf("sending welcome message")
+		log.Debug().Any("welcome", c.welcomeMessage).Msgf("sending welcome message")
 		c.Send(c.welcomeMessage)
 	}
 	return nil
