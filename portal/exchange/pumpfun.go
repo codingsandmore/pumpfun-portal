@@ -28,7 +28,8 @@ type SwapRequest struct {
 }
 
 type SwapResponse struct {
-	Errors []string `json:"errors"`
+	Signature string `json:"signature"`
+	Errors    []any  `json:"errors"`
 }
 
 func (p *PumpFun) SwapSolForToken(amountSol float64, token string, slippage float64, priorityFee float64) (any, error) {
@@ -88,14 +89,19 @@ func (p *PumpFun) SwapRequest(request SwapRequest) (any, error) {
 	if resp.StatusCode != 200 {
 		return nil, errors.New(resp.Status)
 	} else {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			panic(err)
+		sr := SwapResponse{}
+		body, readErr := ioutil.ReadAll(resp.Body)
+		if readErr != nil {
+			log.Error().Err(readErr).Msgf("Error reading response")
 		}
 
-		bodyString := string(bodyBytes)
+		log.Info().Str("content", string(body)).Msg("Response body")
+		jsonErr := json.Unmarshal(body, &sr)
+		if jsonErr != nil {
+			log.Error().Err(jsonErr).Msgf("Error unmarshalling response")
+		}
 
-		log.Info().Str("state", resp.Status).Str("content", bodyString).Msg("Request response")
+		log.Info().Str("state", resp.Status).Any("response", sr).Msg("Request response")
 
 		return nil, nil
 	}

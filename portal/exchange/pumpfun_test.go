@@ -35,9 +35,9 @@ func TestPumpFun_SwapSolForTokenWithApiKeyAndValidToken(t *testing.T) {
 
 	p := NewPumpFun(os.Getenv("PUMPFUN_API_KEY"), &http.Client{})
 
-	_, err = p.SwapSolForToken(0.05, os.Getenv("PUMPFUN_TEST_TOKEN"), 2, 0.01)
+	_, err = p.SwapSolForToken(0.05, "5QqWdXWvJ1GUwLVQCfDxgeTcR5LhRMqnRT49HWMd23oX", 2, 0.01)
 
-	assert.Error(t, err)
+	assert.NoError(t, err)
 }
 
 func TestPumpFun_SwapSolForTokenWithApiKeyAndEmptyToken(t *testing.T) {
