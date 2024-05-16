@@ -76,3 +76,7 @@ D79Tjjs6GpsUL2Pxd7PNsWuBaRJs5Qdt1XNorXRD5Azd
 ### Collaboration
 
 Feel free to reach out to me, I'm always interested in some fun collaborations.
+
+### Disclaimer
+
+all tools provided, are for learning purposes only, without any form or kind of warranty. Please use at your own risk.
