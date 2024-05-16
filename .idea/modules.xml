@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/pumpfun.iml" filepath="$PROJECT_DIR$/.idea/pumpfun.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../pumpfun-db/.idea/pumpfun-db.iml" filepath="$PROJECT_DIR$/../pumpfun-db/.idea/pumpfun-db.iml" />
     </modules>
   </component>
 </project>
