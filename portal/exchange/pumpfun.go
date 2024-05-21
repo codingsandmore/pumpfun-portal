@@ -9,7 +9,6 @@ import (
 	"github.com/gagliardetto/solana-go"
 	"github.com/gagliardetto/solana-go/rpc"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/time/rate"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -18,10 +17,11 @@ import (
 )
 
 type PumpFun struct {
-	url    string
-	apiKey string
-	pool   string
-	client *http.Client
+	url       string
+	apiKey    string
+	pool      string
+	client    *http.Client
+	rpcClient *rpc.Client
 }
 
 type SwapRequest struct {
@@ -57,28 +57,26 @@ func (p *PumpFun) SwapSolForToken(amountSol float64, token string, slippage floa
 }
 
 func (p *PumpFun) SwapRequest(request SwapRequest) (*SwapResponse, error) {
-	/*
-		if request.Amount <= 0 {
-			return nil, errors.New("invalid swap request, need to specify an amount larger than 0")
-		}
-		if request.Mint == "" {
-			return nil, errors.New("invalid swap request, need to specify a mint address")
-		}
-		if request.Action == "buy" || request.Action == "sell" {
+	if request.Amount <= 0 {
+		return nil, errors.New("invalid swap request, need to specify an amount larger than 0")
+	}
+	if request.Mint == "" {
+		return nil, errors.New("invalid swap request, need to specify a mint address")
+	}
+	if request.Action == "buy" || request.Action == "sell" {
 
-		} else {
-			return nil, errors.New("invalid swap request, need to specify a valid action")
-		}
-		if request.Slippage <= 0 {
-			return nil, errors.New("invalid swap request, need to specify a slippage larger than 0")
-		}
-		if request.PriorityFee <= 0 {
-			return nil, errors.New("invalid swap request, need to specify a priority fee larger than 0")
-		}
-		if p.apiKey == "" {
-			return nil, errors.New("invalid swap request, need to specify an api key")
-		}
-	*/
+	} else {
+		return nil, errors.New("invalid swap request, need to specify a valid action")
+	}
+	if request.Slippage <= 0 {
+		return nil, errors.New("invalid swap request, need to specify a slippage larger than 0")
+	}
+	if request.PriorityFee <= 0 {
+		return nil, errors.New("invalid swap request, need to specify a priority fee larger than 0")
+	}
+	if p.apiKey == "" {
+		return nil, errors.New("invalid swap request, need to specify an api key")
+	}
 	api := fmt.Sprintf("%s?api-key=%s", p.url, p.apiKey)
 
 	jsonData, err := json.Marshal(request)
@@ -128,12 +126,6 @@ func (p *PumpFun) SwapRequest(request SwapRequest) (*SwapResponse, error) {
 }
 
 func (p *PumpFun) ParseTransaction(sr *SwapResponse) (float64, error) {
-	client := rpc.NewWithCustomRPCClient(rpc.NewWithLimiter(
-		"https://alpha-quick-energy.solana-mainnet.quiknode.pro/a9a59fa0f479c337641331fadd97fb1239fd4744/",
-		rate.Every(time.Second), // time frame
-		5,                       // limit of requests per time frame
-	))
-
 	var v uint64 = 1
 
 	opts := rpc.GetParsedTransactionOpts{
@@ -146,7 +138,7 @@ func (p *PumpFun) ParseTransaction(sr *SwapResponse) (float64, error) {
 
 	var t *rpc.GetParsedTransactionResult
 	for i := 0; ; i++ {
-		t, err = client.GetParsedTransaction(context.TODO(), sig, &opts)
+		t, err = p.rpcClient.GetParsedTransaction(context.TODO(), sig, &opts)
 
 		if err == nil {
 			//done
@@ -221,11 +213,12 @@ func (p *PumpFun) SwapTokenForSol(amountToken float64, token string, slippage fl
 	return p.SwapRequest(request)
 }
 
-func NewPumpFun(apiKey string, client *http.Client) *PumpFun {
+func NewPumpFun(apiKey string, client *http.Client, rpcClient *rpc.Client) *PumpFun {
 	return &PumpFun{
-		pool:   "pump",
-		apiKey: apiKey,
-		url:    "https://pumpportal.fun/api/trade",
-		client: client,
+		rpcClient: rpcClient,
+		pool:      "pump",
+		apiKey:    apiKey,
+		url:       "https://pumpportal.fun/api/trade",
+		client:    client,
 	}
 }
