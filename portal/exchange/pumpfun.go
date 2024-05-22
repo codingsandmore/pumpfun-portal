@@ -102,17 +102,17 @@ func (p *PumpFun) SwapRequest(request SwapRequest) (*SwapResponse, error) {
 			log.Error().Err(readErr).Msgf("Error reading response")
 		}
 
-		log.Info().Str("content", string(body)).Msg("Response body")
+		log.Debug().Str("content", string(body)).Msg("Response body")
 		jsonErr := json.Unmarshal(body, &sr)
 		if jsonErr != nil {
 			log.Error().Err(jsonErr).Msgf("Error unmarshalling response")
 		}
 
-		log.Info().Str("state", resp.Status).Any("response", sr).Msg("Request response")
+		log.Debug().Str("state", resp.Status).Any("response", sr).Msg("Request response")
 
 		sr.Request = request
 		if len(sr.Errors) > 0 {
-			return &sr, errors.New("we received an error during this response")
+			return &sr, errors.New(fmt.Sprintf("we received an error during this response. Error was: %v", sr.Errors[0]))
 		}
 
 		filled, err := p.ParseTransaction(&sr)
@@ -142,7 +142,6 @@ func (p *PumpFun) ParseTransaction(sr *SwapResponse) (float64, error) {
 
 		if err == nil {
 			//done
-			log.Info().Any("tx", t)
 			break
 		} else if err.Error() == "not found" {
 			log.Debug().AnErr("error", err).Msgf("received error, sleeping a bit...")
@@ -153,7 +152,6 @@ func (p *PumpFun) ParseTransaction(sr *SwapResponse) (float64, error) {
 		}
 
 	}
-	log.Info().Any("tx", t).Msgf("fetched transactions")
 
 	if t.Meta.Err != nil {
 		log.Error().Str("pair", sr.Signature).Any("error in transaction", t.Meta.Err).Msgf("transaction most likely failed")
