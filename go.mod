@@ -1,4 +1,4 @@
-module github.com/codingsandmore/pumpfun
+module github.com/codingsandmore/pumpfun-portal
 
 require (
 	github.com/gagliardetto/solana-go v1.10.0

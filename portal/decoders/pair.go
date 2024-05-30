@@ -2,7 +2,7 @@ package decoders
 
 import (
 	"encoding/json"
-	"github.com/codingsandmore/pumpfun/portal"
+	"github.com/codingsandmore/pumpfun-portal/portal"
 	"github.com/rs/zerolog/log"
 )
 

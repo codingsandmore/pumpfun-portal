@@ -69,11 +69,13 @@ func (c *DefaultWebSocketClient) Connect() error {
 	log.Debug().Str("url", c.Addr).Msgf("connecting to %v", c.Addr)
 	u, err := url.Parse(c.Addr)
 	if err != nil {
+		log.Error().AnErr("error during parsing of url", err)
 		return err
 	}
 
 	c.Conn, _, err = websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
+		log.Error().AnErr("error during dialing url", err)
 		return err
 	}
 
@@ -89,7 +91,7 @@ func (c *DefaultWebSocketClient) maintainConnection() {
 		if c.Conn == nil {
 			log.Info().Msgf("attempting to establish connection to %v", c.Addr)
 			if err := c.Connect(); err != nil {
-				log.Info().Msgf("Connect Error:", err)
+				log.Error().AnErr("connect error", err).Msgf("Connect Error:", err)
 				time.Sleep(time.Second)
 				continue
 			}
@@ -97,7 +99,7 @@ func (c *DefaultWebSocketClient) maintainConnection() {
 
 		_, msg, err := c.Conn.ReadMessage()
 		if err != nil {
-			log.Error().Msgf("Read Error:", err)
+			log.Error().AnErr("read error", err).Msgf("Read Error:", err)
 			c.Conn = nil
 			continue
 		}
@@ -105,7 +107,7 @@ func (c *DefaultWebSocketClient) maintainConnection() {
 		message, err := c.Decoder.Decode(msg)
 
 		if err != nil {
-			log.Error().Msgf("Decode Error: %s", err)
+			log.Error().AnErr("decode error", err).Msgf("Decode Error: %s", err)
 		} else if message == nil {
 			log.Warn().Msgf("ignored nil message")
 		} else {
@@ -136,7 +138,7 @@ func (c *DefaultWebSocketClient) maintainOutgoingMessages() {
 		}
 
 		if err != nil {
-			log.Error().Msgf("Write Error:", err)
+			log.Error().AnErr("write error", err).Msgf("Write Error:", err)
 			c.Conn = nil
 			continue
 		}

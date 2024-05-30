@@ -1,9 +1,9 @@
 package server
 
 import (
-	"github.com/codingsandmore/pumpfun/portal"
-	"github.com/codingsandmore/pumpfun/portal/decoders"
-	"github.com/codingsandmore/pumpfun/portal/trades"
+	"github.com/codingsandmore/pumpfun-portal/portal"
+	"github.com/codingsandmore/pumpfun-portal/portal/decoders"
+	"github.com/codingsandmore/pumpfun-portal/portal/trades"
 	"github.com/rs/zerolog/log"
 )
 

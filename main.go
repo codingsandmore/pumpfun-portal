@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/codingsandmore/pumpfun/portal"
-	"github.com/codingsandmore/pumpfun/portal/server"
+	"github.com/codingsandmore/pumpfun-portal/portal"
+	"github.com/codingsandmore/pumpfun-portal/portal/server"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"

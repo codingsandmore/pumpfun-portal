@@ -1,8 +1,8 @@
 package trades
 
 import (
-	"github.com/codingsandmore/pumpfun/portal"
-	"github.com/codingsandmore/pumpfun/portal/decoders"
+	"github.com/codingsandmore/pumpfun-portal/portal"
+	"github.com/codingsandmore/pumpfun-portal/portal/decoders"
 	"github.com/rs/zerolog/log"
 )
 
